@@ -13,7 +13,7 @@
 class Clipboard
 {
   public:
-    setNewLine(std::string str) {
+    void setNewLine(std::string str) {
       newline = str;
     }
     const std::string getNewLine() {
