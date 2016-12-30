@@ -36,7 +36,7 @@ std::string Ciconv::convert(std::string src) {
   outbytesleft = BUFLEN - 1;
   while (1) {
     size_t ret = iconv(m_cd, &p_src, &inbyteleft, &p_dest, &outbytesleft);
-    if (ret  == (size_t)(-1)) {
+    if (ret == (size_t)(-1)) {
       if (errno == EILSEQ || errno == EINVAL) {
         throw std::invalid_argument("Failed convert.");
       }
