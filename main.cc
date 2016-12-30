@@ -1,4 +1,5 @@
 #include "clipboard.h"
+#include "ciconv.h"
 #include <io.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -8,26 +9,28 @@ const char CR = '\r';
 const char LF = '\n';
 
 void usage();
+void err_exit(std::string to, std::string from);
 void crlf2lf(std::string &targetStr);
-
 
 int main(int argc, char * const argv[])
 {
   std::map<char, bool> optflag;
+  std::string charset;
   optflag['i'] = false;
   optflag['o'] = false;
   optflag['l'] = false;
-  optflag['c'] = false;
+  optflag['r'] = false;
 
   struct option longopts[] = {
     {"lf",   no_argument, NULL, 'l'},
-    {"crlf", no_argument, NULL, 'c'},
+    {"crlf", no_argument, NULL, 'r'},
+    {"charset", required_argument, NULL, 'c'},
     {0,      0,           0,     0 },
   };
 
   int opt;
   int longindex;
-  while ((opt = getopt_long(argc, argv, "io", longopts, &longindex)) != -1) {
+  while ((opt = getopt_long(argc, argv, "ioc:", longopts, &longindex)) != -1) {
     switch (opt) {
       case 'i':
         optflag['i'] = true;
@@ -38,9 +41,15 @@ int main(int argc, char * const argv[])
       case 'l':
         optflag['l'] = true;
         break;
-      case 'c':
-        optflag['c'] = true;
+      case 'r':
+        optflag['r'] = true;
         break;
+      case 'c':
+        charset = optarg;
+        break;
+      case ':':
+        usage();
+        return 1;
       default:
         usage();
         return 1;
@@ -50,7 +59,7 @@ int main(int argc, char * const argv[])
   if ((optflag['i'] && optflag['o'])
       || (!optflag['i'] && !optflag['o'])
       || (optflag['i'] && optflag['l'])
-      || (optflag['o'] && optflag['c'])) {
+      || (optflag['o'] && optflag['r'])) {
     usage();
     return 1;
   }
@@ -61,7 +70,17 @@ int main(int argc, char * const argv[])
 
   if (optflag['o']) {
     ss << clipboard;
-    str = ss.str();
+    if (charset.empty()) {
+      str = ss.str();
+    }
+    else {
+      try {
+        Ciconv ciconv(charset, "UTF-8");
+        str = ciconv.convert(ss.str());
+      } catch (std::invalid_argument) {
+        err_exit(charset, "UTF-8");
+      }
+    }
     if (optflag['l']) {
       crlf2lf(str);
     }
@@ -71,7 +90,7 @@ int main(int argc, char * const argv[])
   else {
     bool init = true;
 
-    if (optflag['c']) {
+    if (optflag['r']) {
       ss << CR;
     }
     ss << LF;
@@ -85,7 +104,17 @@ int main(int argc, char * const argv[])
       ss << str;
       init = false;
     }
-    str = ss.str();
+    if (charset.empty()) {
+      str = ss.str();
+    }
+    else {
+      try {
+        Ciconv ciconv("UTF-8", charset);
+        str = ciconv.convert(ss.str());
+      } catch (std::invalid_argument) {
+        err_exit("UTF-8", charset);
+      }
+    }
     std::stringstream(str) >> clipboard;
   }
 
@@ -95,13 +124,22 @@ int main(int argc, char * const argv[])
 void usage() {
   std::cerr << "win32yank" << std::endl << std::endl
     << "Usage:" << std::endl
-    << "    win32yank -o [--lf]" << std::endl
-    << "    win32yank -i [--crlf]" << std::endl << std::endl
+    << "    win32yank -o [--lf] [[-c|--charset=]output charset]" << std::endl
+    << "    win32yank -i [--crlf] [[-c|--charset=]input charset]" << std::endl << std::endl
     << "Options:" << std::endl
     << "    -o         Print clipboard content to stdout" << std::endl
     << "    -i         Set clipboard from stdin" << std::endl
+    << "    -c         Output or input charset" << std::endl
     << "    --lf       Replace CRLF with  LF before printing to stdout" << std::endl
-    << "    --crlf     Replace lone LF bytes with CRLF before setting the clipboard" << std::endl;
+    << "    --crlf     Replace lone LF bytes with CRLF before setting the clipboard" << std::endl
+    << "    --charset  Output or input charset" << std::endl;
+}
+
+void err_exit(std::string to, std::string from) {
+  std::cerr << "The conversion from "
+            << from << " to " << to
+            << "is not supported by the implementation.";
+  exit(1);
 }
 
 void crlf2lf(std::string &targetStr) {
