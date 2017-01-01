@@ -1,3 +1,6 @@
+#ifndef _CICONV_H
+#define _CICONV_H
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -39,3 +42,5 @@ class Ciconv {
     return 0;
   }
 };
+
+#endif

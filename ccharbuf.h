@@ -1,3 +1,6 @@
+#ifndef _CCHARBUF_H
+#define _CCHARBUF_H
+
 #include <stdexcept>
 #include <cstddef>
 
@@ -14,3 +17,5 @@ class Ccharbuf {
     char* p_char;
     size_t m_length;
 };
+
+#endif
