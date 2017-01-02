@@ -11,6 +11,7 @@ const char LF = '\n';
 void usage();
 void err_exit(std::string to, std::string from);
 void crlf2lf(std::string &targetStr);
+void lf2crlf(std::string &targetStr);
 
 int main(int argc, char * const argv[])
 {
@@ -88,29 +89,19 @@ int main(int argc, char * const argv[])
     std::cout.write(str.c_str(), str.length());
   }
   else {
-    bool init = true;
+    std::cin >> std::noskipws;
+    std::istream_iterator<char> begin(std::cin);
+    std::istream_iterator<char> end;
+    str = std::string(begin, end);
 
     if (optflag['r']) {
-      ss << CR;
+      lf2crlf(str);
     }
-    ss << LF;
-    clipboard.setNewLine(ss.str());
-    ss.str("");
 
-    while (std::getline(std::cin, str)) {
-      if (!init) {
-        ss << "\n";
-      }
-      ss << str;
-      init = false;
-    }
-    if (charset.empty()) {
-      str = ss.str();
-    }
-    else {
+    if (!charset.empty()) {
       try {
         Ciconv ciconv("UTF-8", charset);
-        str = ciconv.convert(ss.str());
+        str = ciconv.convert(str);
       } catch (std::invalid_argument) {
         err_exit("UTF-8", charset);
       }
@@ -152,6 +143,18 @@ void crlf2lf(std::string &targetStr) {
       }
     }
     catch (std::out_of_range) {
+    }
+    destStr += *it;
+  }
+  targetStr = destStr;
+}
+
+void lf2crlf(std::string &targetStr) {
+  std::string destStr;
+  for (std::string::const_iterator it = targetStr.begin();
+      it != targetStr.end(); ++it) {
+    if (*it == LF && *(it - 1) != CR) {
+      destStr += CR;
     }
     destStr += *it;
   }

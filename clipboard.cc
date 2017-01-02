@@ -33,19 +33,15 @@ std::istream &operator>>(std::istream &in, Clipboard &tgt) {
   PTSTR strMem, strText;
   std::string str;
   std::u16string str16;
-  std::stringstream ss;
-  bool init = true;
 
-  while (std::getline(in, str)) {
-    if (!init) {
-      ss << tgt.getNewLine();
-    }
-    ss << str;
-    init = false;
-  }
+  std::noskipws(in);
+  std::istream_iterator<char> begin(in);
+  std::istream_iterator<char> end;
+  str = std::string(begin, end);
+
   std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cv;
   try {
-    str16 = cv.from_bytes(ss.str());
+    str16 = cv.from_bytes(str);
   }
   catch (std::range_error) {
     std::cerr << "Failed wstring_convert." << std::endl;

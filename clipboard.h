@@ -8,19 +8,11 @@
 #include <sstream>
 #include <locale>
 #include <codecvt>
+#include <iterator>
 #include <windows.h>
 
 class Clipboard
 {
-  public:
-    void setNewLine(std::string str) {
-      newline = str;
-    }
-    const std::string getNewLine() {
-      return newline;
-    }
-  private:
-    std::string newline;
 };
 
 std::ostream &operator<<(std::ostream &out, const Clipboard &tgt);
