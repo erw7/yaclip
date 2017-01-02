@@ -128,8 +128,8 @@ void usage() {
 
 void err_exit(std::string to, std::string from) {
   std::cerr << "The conversion from "
-            << from << " to " << to
-            << "is not supported by the implementation.";
+    << from << " to " << to
+    << "is not supported by the implementation.";
   exit(1);
 }
 
