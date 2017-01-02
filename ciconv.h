@@ -10,7 +10,7 @@
 #include <sstream>
 #include <assert.h>
 #include <iconv.h>
-#include "ccharbuf.h"
+#include "cmembuf.h"
 
 #define BUFLEN 1024
 

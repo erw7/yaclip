@@ -24,7 +24,7 @@ Ciconv::~Ciconv() {
 
 std::string Ciconv::convert(std::string src) {
   std::string result;
-  Ccharbuf ccharbuf(src.length());
+  Cmembuf<char> ccharbuf(src.length());
   char *p_src;
   char dest[BUFLEN];
   char* p_dest;
