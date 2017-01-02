@@ -5,6 +5,8 @@
 #include <getopt.h>
 #include <map>
 
+#define DEFAULT_ENCODING "UTF-8"
+
 const char CR = '\r';
 const char LF = '\n';
 
@@ -76,10 +78,10 @@ int main(int argc, char * const argv[])
     }
     else {
       try {
-        Ciconv ciconv(charset, "UTF-8");
+        Ciconv ciconv(charset, DEFAULT_ENCODING);
         str = ciconv.convert(ss.str());
       } catch (std::invalid_argument) {
-        err_exit(charset, "UTF-8");
+        err_exit(charset, DEFAULT_ENCODING);
       }
     }
     if (optflag['l']) {
@@ -100,10 +102,10 @@ int main(int argc, char * const argv[])
 
     if (!charset.empty()) {
       try {
-        Ciconv ciconv("UTF-8", charset);
+        Ciconv ciconv(DEFAULT_ENCODING, charset);
         str = ciconv.convert(str);
       } catch (std::invalid_argument) {
-        err_exit("UTF-8", charset);
+        err_exit(DEFAULT_ENCODING, charset);
       }
     }
     std::stringstream(str) >> clipboard;
@@ -123,7 +125,7 @@ void usage() {
     << "    -c         Output or input charset" << std::endl
     << "    --lf       Replace CRLF with  LF before printing to stdout" << std::endl
     << "    --crlf     Replace lone LF bytes with CRLF before setting the clipboard" << std::endl
-    << "    --charset  Output or input charset" << std::endl;
+    << "    --charset  Output or input charset (default \""  << DEFAULT_ENCODING << "\")" << std::endl;
 }
 
 void err_exit(std::string to, std::string from) {
