@@ -33,7 +33,7 @@ std::string Ciconv::convert(std::string src) {
   p_src = ccharbuf.c_ptr();
   p_dest =  dest;
   inbyteleft = src.length();
-  outbytesleft = BUFLEN - 1;
+  outbytesleft = BUFLEN;
   while (1) {
     size_t ret = iconv(m_cd, &p_src, &inbyteleft, &p_dest, &outbytesleft);
     if (ret == (size_t)(-1)) {
@@ -41,18 +41,16 @@ std::string Ciconv::convert(std::string src) {
         throw std::invalid_argument("Failed convert.");
       }
       else if (errno == E2BIG) {
-        *p_dest = '\0';
-        result += dest;
+        result.append(dest, BUFLEN - outbytesleft);
         p_dest = dest;
-        outbytesleft = BUFLEN - 1;
+        outbytesleft = BUFLEN;
       }
       else {
         assert(false);
       }
     }
     else {
-      *p_dest = '\0';
-      result += dest;
+      result.append(dest, BUFLEN - outbytesleft);
       break;
     }
   }
