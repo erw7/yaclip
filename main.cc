@@ -10,6 +10,8 @@
 const char CR = '\r';
 const char LF = '\n';
 
+static std::string progname;
+
 void usage();
 void err_exit(std::string to, std::string from);
 void crlf2lf(std::string &targetStr);
@@ -17,6 +19,12 @@ void lf2crlf(std::string &targetStr);
 
 int main(int argc, char * const argv[])
 {
+  progname = argv[0];
+  size_t pos;
+  if ((pos = progname.rfind("\\", progname.length()) + 1) != std::string::npos) {
+    progname.erase(0, pos);
+  }
+
   std::map<char, bool> optflag;
   std::string charset;
   optflag['i'] = false;
@@ -115,10 +123,10 @@ int main(int argc, char * const argv[])
 }
 
 void usage() {
-  std::cerr << "win32yank" << std::endl << std::endl
+  std::cerr << progname << std::endl << std::endl
     << "Usage:" << std::endl
-    << "    win32yank -o [--lf] [[-c|--charset=]output charset]" << std::endl
-    << "    win32yank -i [--crlf] [[-c|--charset=]input charset]" << std::endl << std::endl
+    << "    " << progname << " -o [--lf] [[-c|--charset=]output charset]" << std::endl
+    << "    " << progname << " -i [--crlf] [[-c|--charset=]input charset]" << std::endl << std::endl
     << "Options:" << std::endl
     << "    -o         Print clipboard content to stdout" << std::endl
     << "    -i         Set clipboard from stdin" << std::endl
