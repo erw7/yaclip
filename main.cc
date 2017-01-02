@@ -1,4 +1,4 @@
-#include "clipboard.h"
+#include "cclipboard.h"
 #include "ciconv.h"
 #include <io.h>
 #include <fcntl.h>
@@ -75,12 +75,12 @@ int main(int argc, char * const argv[])
     return 1;
   }
 
-  Clipboard clipboard;
+  Cclipboard cclipboard;
   std::string str;
   std::stringstream ss;
 
   if (optflag['o']) {
-    ss << clipboard;
+    ss << cclipboard;
     if (charset.empty()) {
       str = ss.str();
     }
@@ -116,7 +116,7 @@ int main(int argc, char * const argv[])
         err_exit(DEFAULT_ENCODING, charset);
       }
     }
-    std::stringstream(str) >> clipboard;
+    std::stringstream(str) >> cclipboard;
   }
 
   return 0;

@@ -1,6 +1,6 @@
-#include "clipboard.h"
+#include "cclipboard.h"
 
-std::ostream &operator<<(std::ostream &out, const Clipboard &tgt) {
+std::ostream &operator<<(std::ostream &out, const Cclipboard &tgt) {
   if (IsClipboardFormatAvailable(CF_UNICODETEXT) &&
       OpenClipboard(NULL)) {
     HANDLE hData;
@@ -28,7 +28,7 @@ std::ostream &operator<<(std::ostream &out, const Clipboard &tgt) {
   return out;
 }
 
-std::istream &operator>>(std::istream &in, Clipboard &tgt) {
+std::istream &operator>>(std::istream &in, Cclipboard &tgt) {
   HANDLE hData;
   PTSTR strMem, strText;
   std::string str;
