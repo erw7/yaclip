@@ -1,5 +1,6 @@
 #include "cclipboard.h"
 #include "ciconv.h"
+#include "cnlconv.h"
 #include <io.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -7,15 +8,10 @@
 
 #define DEFAULT_ENCODING "UTF-8"
 
-const char CR = '\r';
-const char LF = '\n';
-
 static std::string progname;
 
 void usage();
 void err_exit(std::string to, std::string from);
-void crlf2lf(std::string &targetStr);
-void lf2crlf(std::string &targetStr);
 
 int main(int argc, char * const argv[])
 {
@@ -93,19 +89,22 @@ int main(int argc, char * const argv[])
       }
     }
     if (optflag['l']) {
-      crlf2lf(str);
+      Cnlconv cnlconv(LF);
+      str = cnlconv.convert(str);
     }
     _setmode(_fileno(stdout), _O_BINARY);
     std::cout.write(str.c_str(), str.length());
   }
   else {
+    _setmode(_fileno(stdin), _O_BINARY);
     std::cin >> std::noskipws;
     std::istream_iterator<char> begin(std::cin);
     std::istream_iterator<char> end;
     str = std::string(begin, end);
 
     if (optflag['r']) {
-      lf2crlf(str);
+      Cnlconv cnlconv(CRLF);
+      str = cnlconv.convert(str);
     }
 
     if (!charset.empty()) {
@@ -141,32 +140,4 @@ void err_exit(std::string to, std::string from) {
     << from << " to " << to
     << "is not supported by the implementation.";
   exit(1);
-}
-
-void crlf2lf(std::string &targetStr) {
-  std::string destStr;
-  for (std::string::const_iterator it = targetStr.begin();
-      it != targetStr.end(); ++it) {
-    try {
-      if (*it == CR && *(it + 1) == LF) {
-        ++it;
-      }
-    }
-    catch (std::out_of_range) {
-    }
-    destStr += *it;
-  }
-  targetStr = destStr;
-}
-
-void lf2crlf(std::string &targetStr) {
-  std::string destStr;
-  for (std::string::const_iterator it = targetStr.begin();
-      it != targetStr.end(); ++it) {
-    if (*it == LF && *(it - 1) != CR) {
-      destStr += CR;
-    }
-    destStr += *it;
-  }
-  targetStr = destStr;
 }
