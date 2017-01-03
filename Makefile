@@ -1,5 +1,5 @@
-win32yank.exe: main.o cclipboard.o ciconv.o cnlconv.o
-	g++ -Wall -O2 --std=c++11 -o win32yank.exe main.o cclipboard.o ciconv.o cnlconv.o -liconv
+yaclip.exe: main.o cclipboard.o ciconv.o cnlconv.o
+	g++ -Wall -O2 --std=c++11 -o yaclip.exe main.o cclipboard.o ciconv.o cnlconv.o -liconv
 
 main.o: main.cc
 	g++ -c -Wall -O2 --std=c++11 main.cc
@@ -15,4 +15,4 @@ cnlconv.o: cnlconv.cc cnlconv.h
 
 .PHONY: clean
 clean:
-	rm -f win32yank.exe main.o cclipboard.o ciconv.o cnlconv.o
+	rm -f yaclip.exe main.o cclipboard.o ciconv.o cnlconv.o
