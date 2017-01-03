@@ -11,7 +11,7 @@ Yet another clipboard tool for Windows.
 
 Execute msys2\_shell.cmd in the folder where MSYS 2 is installed with the -mingw64 command line option and execute the following commands in the MSYS2 terminal.
 
-    git clone https: / github.com/erw7/yaclip.git
+    git clone https://github.com/erw7/yaclip.git
     cd yaclip
     mingw32-make
 
