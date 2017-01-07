@@ -7,10 +7,12 @@
 #include <map>
 
 #define DEFAULT_ENCODING "UTF-8"
+#define VERSION "0.1.0"
 
 static std::string progname;
 
 void usage();
+void version();
 void err_exit(std::string to, std::string from);
 
 int main(int argc, char * const argv[])
@@ -27,17 +29,19 @@ int main(int argc, char * const argv[])
   optflag['o'] = false;
   optflag['l'] = false;
   optflag['r'] = false;
+  optflag['v'] = false;
 
   struct option longopts[] = {
     {"lf",   no_argument, NULL, 'l'},
     {"crlf", no_argument, NULL, 'r'},
     {"charset", required_argument, NULL, 'c'},
+    {"version", no_argument, NULL, 'V'},
     {0,      0,           0,     0 },
   };
 
   int opt;
   int longindex;
-  while ((opt = getopt_long(argc, argv, "ioc:", longopts, &longindex)) != -1) {
+  while ((opt = getopt_long(argc, argv, "ioVc:", longopts, &longindex)) != -1) {
     switch (opt) {
       case 'i':
         optflag['i'] = true;
@@ -50,6 +54,9 @@ int main(int argc, char * const argv[])
         break;
       case 'r':
         optflag['r'] = true;
+        break;
+      case 'V':
+        optflag['v'] = true;
         break;
       case 'c':
         charset = optarg;
@@ -64,11 +71,16 @@ int main(int argc, char * const argv[])
   }
 
   if ((optflag['i'] && optflag['o'])
-      || (!optflag['i'] && !optflag['o'])
+      || (!optflag['i'] && !optflag['o'] && !optflag['v'])
       || (optflag['i'] && optflag['l'])
       || (optflag['o'] && optflag['r'])) {
     usage();
     return 1;
+  }
+
+  if (optflag['v']) {
+    version();
+    return 0;
   }
 
   Cclipboard cclipboard;
@@ -124,15 +136,23 @@ int main(int argc, char * const argv[])
 void usage() {
   std::cerr << progname << std::endl << std::endl
     << "Usage:" << std::endl
+    << "    " << progname << " [-V|--version]" << std::endl
     << "    " << progname << " -o [--lf] [[-c|--charset=]output charset]" << std::endl
     << "    " << progname << " -i [--crlf] [[-c|--charset=]input charset]" << std::endl << std::endl
     << "Options:" << std::endl
-    << "    -o         Print clipboard content to stdout" << std::endl
-    << "    -i         Set clipboard from stdin" << std::endl
-    << "    -c         Output or input charset" << std::endl
-    << "    --lf       Replace CRLF with  LF before printing to stdout" << std::endl
-    << "    --crlf     Replace lone LF bytes with CRLF before setting the clipboard" << std::endl
-    << "    --charset  Output or input charset (default \""  << DEFAULT_ENCODING << "\")" << std::endl;
+    << "    -V, --version    Print version information and exit" << std::endl
+    << "    -o               Print clipboard content to stdout" << std::endl
+    << "    -i               Set clipboard from stdin" << std::endl
+    << "    --lf             Replace CRLF with LF before printing to stdout" << std::endl
+    << "    --crlf           Replace lone LF bytes with CRLF before setting the clipboard" << std::endl
+    << "    -c, --charset    Output or input charset (default \""  << DEFAULT_ENCODING << "\")" << std::endl;
+}
+
+void version() {
+  std::cout << progname << " " << VERSION << std::endl
+    << "Copyright (C) 2017 erw7@gmail.com" << std::endl
+    << "This is a free software; see the LICENSE for copy conditions.  There is NO" << std::endl
+    << "warranty; not even for MERCHANTABILIRY or FITNESS FOR A PARTICULAR PURPOSE." << std::endl;
 }
 
 void err_exit(std::string to, std::string from) {
