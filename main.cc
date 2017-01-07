@@ -29,19 +29,21 @@ int main(int argc, char * const argv[])
   optflag['o'] = false;
   optflag['l'] = false;
   optflag['r'] = false;
+  optflag['h'] = false;
   optflag['v'] = false;
 
   struct option longopts[] = {
     {"lf",   no_argument, NULL, 'l'},
     {"crlf", no_argument, NULL, 'r'},
     {"charset", required_argument, NULL, 'c'},
+    {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'V'},
     {0,      0,           0,     0 },
   };
 
   int opt;
   int longindex;
-  while ((opt = getopt_long(argc, argv, "ioVc:", longopts, &longindex)) != -1) {
+  while ((opt = getopt_long(argc, argv, "iohVc:", longopts, &longindex)) != -1) {
     switch (opt) {
       case 'i':
         optflag['i'] = true;
@@ -54,6 +56,9 @@ int main(int argc, char * const argv[])
         break;
       case 'r':
         optflag['r'] = true;
+        break;
+      case 'h':
+        optflag['h'] = true;
         break;
       case 'V':
         optflag['v'] = true;
@@ -76,6 +81,11 @@ int main(int argc, char * const argv[])
       || (optflag['o'] && optflag['r'])) {
     usage();
     return 1;
+  }
+
+  if (optflag['h']) {
+    usage();
+    return 0;
   }
 
   if (optflag['v']) {
@@ -136,10 +146,12 @@ int main(int argc, char * const argv[])
 void usage() {
   std::cerr << progname << std::endl << std::endl
     << "Usage:" << std::endl
+    << "    " << progname << " [-h|--help]" << std::endl
     << "    " << progname << " [-V|--version]" << std::endl
     << "    " << progname << " -o [--lf] [[-c|--charset=]output charset]" << std::endl
     << "    " << progname << " -i [--crlf] [[-c|--charset=]input charset]" << std::endl << std::endl
     << "Options:" << std::endl
+    << "    -h, --help       Print this help and exit" << std::endl
     << "    -V, --version    Print version information and exit" << std::endl
     << "    -o               Print clipboard content to stdout" << std::endl
     << "    -i               Set clipboard from stdin" << std::endl
