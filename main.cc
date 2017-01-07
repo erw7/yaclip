@@ -76,7 +76,7 @@ int main(int argc, char * const argv[])
   }
 
   if ((optflag['i'] && optflag['o'])
-      || (!optflag['i'] && !optflag['o'] && !optflag['v'])
+      || (!optflag['i'] && !optflag['o'] && !optflag['h'] && !optflag['v'])
       || (optflag['i'] && optflag['l'])
       || (optflag['o'] && optflag['r'])) {
     usage();
