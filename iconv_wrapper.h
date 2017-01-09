@@ -9,18 +9,20 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <boost/scoped_array.hpp>
 #include <iconv.h>
-#include "cmembuf.h"
 
 #define BUFLEN 1024
 
-class Ciconv {
+class iconv_wrapper {
   friend void iconvlist(int (*do_one) (unsigned int namescount,
         const char * const * name,
         void* data), void* data);
   public:
-  Ciconv(std::string to, std::string from);
-  ~Ciconv();
+  iconv_wrapper(std::string to, std::string from);
+  iconv_wrapper(const iconv_wrapper &ci);
+  ~iconv_wrapper();
+  iconv_wrapper &operator=(const iconv_wrapper &ci);
   std::string convert(std::string src);
   std::vector<std::string> get_encodings();
   bool is_enable_encoding(const std::string encoding);
@@ -36,7 +38,7 @@ class Ciconv {
     for (unsigned int i = 0; i < namescount; ++i) {
       std::string encoding = names[i];
       std::transform(encoding.cbegin(), encoding.cend(), encoding.begin(), toupper);
-      Ciconv::encodings.push_back(names[i]);
+      iconv_wrapper::encodings.push_back(names[i]);
     }
 
     return 0;

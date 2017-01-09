@@ -1,18 +1,15 @@
-yaclip.exe: main.o cclipboard.o ciconv.o cnlconv.o
-	g++ -Wall -O2 --std=c++11 -o yaclip.exe main.o cclipboard.o ciconv.o cnlconv.o -liconv
+yaclip.exe: main.o clipboard.o iconv_wrapper.o
+	g++ -Wall -O2 --std=c++11 -o yaclip.exe main.o clipboard.o iconv_wrapper.o -liconv -lboost_iostreams-mt
 
-main.o: main.cc
+main.o: main.cc yaclip.h clipboard.h
 	g++ -c -Wall -O2 --std=c++11 main.cc
 
-cclipboard.o: cclipboard.cc cclipboard.h
-	g++ -c -Wall -O2 --std=c++11 cclipboard.cc
+clipboard.o: clipboard.cc clipboard.h iconv_wrapper.h
+	g++ -c -Wall -O2 --std=c++11 clipboard.cc
 
-ciconv.o: ciconv.cc ciconv.h cmembuf.h cmembuf_private.h
-	g++ -c -Wall -O2 --std=c++11 ciconv.cc
-
-cnlconv.o: cnlconv.cc cnlconv.h
-	g++ -c -Wall -O2 --std=c++11 cnlconv.cc
+iconv_wrapper.o: iconv_wrapper.cc iconv_wrapper.h
+	g++ -c -Wall -O2 --std=c++11 iconv_wrapper.cc
 
 .PHONY: clean
 clean:
-	rm -f yaclip.exe main.o cclipboard.o ciconv.o cnlconv.o
+	rm -f yaclip.exe main.o clipboard.o iconv_wrapper.o

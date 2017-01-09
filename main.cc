@@ -1,19 +1,6 @@
-#include "cclipboard.h"
-#include "ciconv.h"
-#include "cnlconv.h"
-#include <io.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <map>
-
-#define DEFAULT_ENCODING "UTF-8"
-#define VERSION "0.1.0"
+#include "yaclip.h"
 
 static std::string progname;
-
-void usage();
-void version();
-void err_exit(std::string to, std::string from);
 
 int main(int argc, char * const argv[])
 {
@@ -93,52 +80,37 @@ int main(int argc, char * const argv[])
     return 0;
   }
 
-  Cclipboard cclipboard;
   std::string str;
-  std::stringstream ss;
+  io::filtering_istream in;
+  io::filtering_ostream out;
 
   if (optflag['o']) {
-    ss << cclipboard;
-    if (charset.empty()) {
-      str = ss.str();
-    }
-    else {
-      try {
-        Ciconv ciconv(charset, DEFAULT_ENCODING);
-        str = ciconv.convert(ss.str());
-      } catch (std::invalid_argument) {
-        err_exit(charset, DEFAULT_ENCODING);
-      }
-    }
-    if (optflag['l']) {
-      Cnlconv cnlconv(LF);
-      str = cnlconv.convert(str);
-    }
     _setmode(_fileno(stdout), _O_BINARY);
-    std::cout.write(str.c_str(), str.length());
+    in.push(clipboard_source());
+    if (optflag['l']) {
+      out.push(io::newline_filter(io::newline::posix));
+    }
+    if (!charset.empty()) {
+      out.push(iconv_stdio_filter(charset, DEFAULT_ENCODING));
+    }
+    out.push(io::file_descriptor_sink(_fileno(stdout), io::never_close_handle));
   }
   else {
     _setmode(_fileno(stdin), _O_BINARY);
-    std::cin >> std::noskipws;
-    std::istream_iterator<char> begin(std::cin);
-    std::istream_iterator<char> end;
-    str = std::string(begin, end);
-
+    out.push(clipboard_sink());
     if (optflag['r']) {
-      Cnlconv cnlconv(CRLF);
-      str = cnlconv.convert(str);
+      in.push(io::newline_filter(io::newline::dos));
     }
-
     if (!charset.empty()) {
-      try {
-        Ciconv ciconv(DEFAULT_ENCODING, charset);
-        str = ciconv.convert(str);
-      } catch (std::invalid_argument) {
-        err_exit(DEFAULT_ENCODING, charset);
-      }
+      in.push(iconv_stdio_filter(DEFAULT_ENCODING, charset));
     }
-    std::stringstream(str) >> cclipboard;
+    in.push(io::file_descriptor_source(_fileno(stdin), io::never_close_handle));
   }
+
+  str = getall(in);
+  out << str;
+  io::close(in);
+  io::close(out);
 
   return 0;
 }
@@ -170,6 +142,6 @@ void version() {
 void err_exit(std::string to, std::string from) {
   std::cerr << "The conversion from "
     << from << " to " << to
-    << "is not supported by the implementation.";
+    << " is not supported by the implementation.";
   exit(1);
 }
