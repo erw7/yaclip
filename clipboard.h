@@ -1,9 +1,6 @@
 #ifndef _CLIPBOARD_H
 #define _CLIPBOARD_H
 
-#define UNICODE
-#define _UNICODE
-
 #include <codecvt>
 #include <boost/iostreams/filter/stdio.hpp>
 #include <windows.h>

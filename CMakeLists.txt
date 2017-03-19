@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 project(git_wrapper)
 
+option(USE_COTIRE "Use cotire" OFF)
+
+add_compile_options("-DUNICODE -D_UNICODE")
+
+if(USE_COTIRE)
+  set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cotire/CMake)
+  include(cotire)
+  set(COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES 1)
+endif()
+
 get_filename_component(srcdir "${CMAKE_SOURCE_DIR}" REALPATH)
 get_filename_component(bindir "${CMAKE_BINARY_DIR}" REALPATH)
 if("${srcdir}" STREQUAL "${bindir}")
@@ -30,9 +40,14 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 file(GLOB SOUCES ${CMAKE_SOURCE_DIR}/*.cc)
+file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/*.h)
 find_package(Boost REQUIRED COMPONENTS iostreams)
-add_executable(yaclip ${SOUCES})
+add_executable(yaclip ${SOUCES} ${HEADERS})
 set_target_properties(yaclip PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(yaclip Boost::iostreams)
 target_link_libraries(yaclip ${ICONV_LIBRARY})
+if(USE_COTIRE)
+  cotire(yaclip)
+endif()
+
 install(TARGETS yaclip RUNTIME DESTINATION bin)
