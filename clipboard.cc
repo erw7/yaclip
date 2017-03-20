@@ -1,20 +1,13 @@
 #include "clipboard.h"
 
-std::string getall(std::istream& in) {
-  in >> std::noskipws;
-  std::istream_iterator<char> begin(in);
-  std::istream_iterator<char> end;
-  std::string str = std::string(begin, end);
-  return str;
-}
-
 iconv_stdio_filter &iconv_stdio_filter::operator=(const iconv_stdio_filter &isf) {
   m_ciconv = isf.m_ciconv;
   return (*this);
 }
 
 void iconv_stdio_filter::do_filter () {
-  std::string str = getall(std::cin);
+  std::string str((std::istreambuf_iterator<char>(std::cin)),
+      (std::istreambuf_iterator<char>()));
   str = m_ciconv.convert(str);
   std::cout << str;
 }

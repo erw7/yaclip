@@ -107,7 +107,8 @@ int main(int argc, char * const argv[])
     in.push(io::file_descriptor_source(_fileno(stdin), io::never_close_handle));
   }
 
-  str = getall(in);
+  str = std::string((std::istreambuf_iterator<char>(in)),
+      (std::istreambuf_iterator<char>()));
   out << str;
   io::close(in);
   io::close(out);
