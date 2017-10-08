@@ -14,6 +14,9 @@ Execute msys2\_shell.cmd in the folder where MSYS 2 is installed with the -mingw
 
     git clone https://github.com/erw7/yaclip.git
     cd yaclip
+    mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" ..
     mingw32-make
 
 ## Basic usage
